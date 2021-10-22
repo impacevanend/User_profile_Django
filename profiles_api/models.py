@@ -13,7 +13,23 @@ class UserProfileManager(BaseUserManager):
         if not email:
             raise ValueError('Usuario debe tener un email')
         
-        email = self.normalize_email
+        email = self.normalize_email(email)
+        user = self.create_user(email = email, name = name)
+        
+        user.set_password(password)
+        user.save(using = self._db)
+        
+        return user
+    
+    def create_superuser(self, email, name, password):
+        """Crear Super User"""
+        
+        user = self.create_user(email, name, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using = self._db)
+        
+        return user
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Modelo Base de datos para usuario en el sistema"""
