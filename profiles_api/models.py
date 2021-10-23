@@ -5,54 +5,55 @@ from django.contrib.auth.models import BaseUserManager
 # Create your models here.
 
 class UserProfileManager(BaseUserManager):
-    """Manager para perfiles de usuario """
+    '''Manager para perfiles de usuario'''
     
     def create_user(self, email, name, password=None):
-        """Crear Nuevo User Profile """
-        
+        ''' Crear nuevo User Profile '''
         if not email:
             raise ValueError('Usuario debe tener un email')
         
         email = self.normalize_email(email)
-        user = self.create_user(email = email, name = name)
+        user = self.model(email=email, name=name)
         
         user.set_password(password)
-        user.save(using = self._db)
+        user.save(using=self._db)
         
         return user
     
     def create_superuser(self, email, name, password):
-        """Crear Super User"""
-        
         user = self.create_user(email, name, password)
+        
         user.is_superuser = True
         user.is_staff = True
-        user.save(using = self._db)
+        user.save(using=self._db)
         
         return user
+    
+    
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
-    """Modelo Base de datos para usuario en el sistema"""
-    email = models.EmailField(max_length=255,unique=True)
+    """Modelo Base de Datos para usuarios en el sistema"""
+    id = models.AutoField(primary_key=True)
+    email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default= False) 
+    is_staff = models.BooleanField(default= False)
     
-    #Modo manager para los objetos
+    
     objects = UserProfileManager()
     
     USERNAME_FIELD = 'email'
-    REQUIRES_FIELD = ['name']
+    REQUIRED_FIELDS = ['name']
+    
     
     def get_full_name(self):
-        """Obtener nombre completo"""
+        ''' Obtener nombre completo '''
         return self.name
     
-    
     def get_short_name(self):
-        """Obtener nombre corto del usuario"""
+        ''' Obtener nombre corto del usuario '''
         return self.name
     
     def __str__(self):
-        """Retornar cadena Representando Nuestro Usario"""
+        ''' Retornar cadena Representando nuestro usuario '''
         return self.email
